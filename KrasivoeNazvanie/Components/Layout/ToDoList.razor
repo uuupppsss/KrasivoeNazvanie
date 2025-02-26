@@ -1,0 +1,24 @@
+﻿@using KrasivoeNazvanie.DB
+<div>
+    <h3>Список задач</h3>
+    <input type="text" placeholder="Введите задачу" @bind-value="newTaskName" />
+    <button>Добавить</button>
+</div>
+
+
+@code {
+    string newTaskName = ""; 
+
+    void AddTask()
+    {
+        if(!string.IsNullOrEmpty(newTaskName))
+        {
+            ToDoItem newItem = new ToDoItem()
+            {
+                Drscription=newTaskName,
+                StatusId=1
+            };
+
+        }
+    }
+}
