@@ -2,23 +2,85 @@
 <div>
     <h3>Список задач</h3>
     <input type="text" placeholder="Введите задачу" @bind-value="newTaskName" />
-    <button>Добавить</button>
+    <button @onclick="AddTask">Добавить</button>
+
+    <div>
+        <button @onclick="()=> LoadTasks(TaskFilter.All)">Все задачи</button>
+        <button @onclick="()=> LoadTasks(TaskFilter.Completed)">Выполненные</button>
+        <button @onclick="()=> LoadTasks(TaskFilter.NotCompleted)">Не выполненные</button>
+    </div>
+
+    @if(tasks.Count>0)
+    {
+        @foreach(var item in tasks)
+        {
+            <div>
+                <input type="checkbox" @bind-value="item.IsCompleted" @onchange="()=> UpdateTask(item)" />
+                <button @onclick="()=>RemoveTask(item)">Удалить</button>
+            </div>
+        }
+    }
 </div>
 
 
 @code {
-    string newTaskName = ""; 
+    private ToDoListDbContext context;
+    private string newTaskName = "";
+    private List<ToDoItem> tasks = new();
 
-    void AddTask()
+
+
+    protected override void OnInitialized()
+    {
+        base.OnInitialized();
+        context = new();
+        LoadTasks(TaskFilter.All);
+    }
+
+    private void LoadTasks(TaskFilter filter)
+    {
+        tasks = filter switch
+        {
+            TaskFilter.Completed => context.ToDoItems.Where(t => t.IsCompleted).ToList(),
+            TaskFilter.NotCompleted => context.ToDoItems.Where(t => !t.IsCompleted).ToList(),
+            TaskFilter.All => context.ToDoItems.ToList()
+        };
+    }
+
+    private async void AddTask()
     {
         if(!string.IsNullOrEmpty(newTaskName))
         {
-            ToDoItem newItem = new ToDoItem()
-            {
-                Drscription=newTaskName,
-                StatusId=1
-            };
-
+            var new_task = new ToDoItem()
+                {
+                    IsCompleted=false,
+                    Drscription = newTaskName
+                };
+            context.ToDoItems.Add(new_task);
+            await context.SaveChangesAsync();
+            newTaskName = string.Empty;
+            LoadTasks(TaskFilter.All);
         }
+    }
+
+    private async void UpdateTask(ToDoItem item)
+    {
+        context.ToDoItems.Update(item);
+        await context.SaveChangesAsync();
+        LoadTasks(TaskFilter.All);
+    }
+
+    private async void RemoveTask(ToDoItem item)
+    {
+        context.ToDoItems.Remove(item);
+        await context.SaveChangesAsync();
+        LoadTasks(TaskFilter.All);
+    }
+
+    private enum TaskFilter
+    {
+        All,
+        Completed,
+        NotCompleted
     }
 }

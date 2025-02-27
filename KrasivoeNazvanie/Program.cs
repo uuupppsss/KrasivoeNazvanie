@@ -1,8 +1,11 @@
 using KrasivoeNazvanie.Components;
+using KrasivoeNazvanie.DB;
 
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
+builder.Services.AddDbContext<ToDoListDbContext>();
+
 builder.Services.AddRazorComponents()
     .AddInteractiveServerComponents();
 

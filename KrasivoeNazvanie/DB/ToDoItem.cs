@@ -9,7 +9,5 @@ public partial class ToDoItem
 
     public string? Drscription { get; set; }
 
-    public int StatusId { get; set; }
-
-    public virtual ToDoStatus Status { get; set; } = null!;
+    public bool IsCompleted { get; set; }
 }
